@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>Room Styler</title>
+    <style>
+        .container {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          margin-bottom: 15px;
+        }
+        .inner-container {
+          display: flex;
+          flex-direction: column;
+          align-items: flex-start;
+          width: 450px;
+        }
+        .text {
+          border: 1px solid black;
+          border-radius: 5px;
+          height: 40px;
+          width: 450px;
+          flex: 1;
+          padding: 5px;
+        }
+        .name {
+          font-size: 100%;
+          width: 300px;
+          text-align: left;
+          margin-right: 10px;
+          margin-bottom: 5px;
+        }
+        .generate_image {
+          width: 200px;
+          height: 30px;
+          background: greenyellow;
+          border: 1px solid green;
+          border-radius: 5px;
+          transition: 0.25s;
+        }
+        .generate_image:active {
+          background: green;
+        }
+        div {
+          text-align: center;
+          margin-bottom: 15px;
+        }
+        h1 {
+          text-align: center;
+          font-size: 4em;
+        }
+        h2 {
+          text-align: center;
+          font-size: 1em;
+        }
+    </style>
+</head>
+<body>
+<h1>RoomStyler</h1> <!--일단 디자인이 확정이 안 돼서 텍스트로 씀-->
+<h2>빈칸에 입력해 주신 정보를 토대로 가구 배치가 진행됩니다</h2>
+<br><br>
+
+<section>
+    <form name="requirementForm" action="/submitForm" method="post">
+        <div class="container">
+            <div class="inner-container">
+                <b class="name">필수로 포함되어야 하는 가구</b>
+                <input class="text" type="text" id="essentialFurniture" name="essentialFurniture">
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="inner-container">
+                <b class="name">창문 위치</b>
+                <input class="text" type="text" id="windowNum" name="windowNum">
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="inner-container">
+                <b class="name">창문 개수</b>
+                <input class="text" type="text" id="windowPosition" name="windowPosition">
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="inner-container">
+                <b class="name">원하는 인테리어 톤/포인트 색상</b>
+                <input class="text" type="text" id="pointColor" name="pointColor">
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="inner-container">
+                <b class="name">방 크기 (가로x세로)</b>
+                <input class="text" type="text" id="roomSize" name="roomSize">
+            </div>
+        </div>
+
+<!--        <div class="container">-->
+<!--            <div class="inner-container">-->
+<!--                <b class="name">기타 고려 사항</b>-->
+<!--                <input class="text" type="text" id="consideration" name="consideration">-->
+<!--            </div>-->
+<!--        </div>-->
+        <div>
+            <button class="generate_image" type="submit">이미지 생성</button>
+        </div>
+
+    </form>
+</section>
+
+<script>
+
+</script>
+</body>
+</html>

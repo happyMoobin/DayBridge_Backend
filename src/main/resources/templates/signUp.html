@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8"/>
+    <title>DayBridge</title>
+    <style>
+        .container {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          margin-bottom: 15px;
+        }
+        .inner-container {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          width: 450px;
+        }
+        .text {
+          background-color: aliceblue;
+          border: 1px solid black;
+          border-radius: 5px;
+          height: 30px;
+          flex: 1;
+        }
+        .name {
+          font-size: 80%;
+          width: 100px;
+          text-align: left;
+          margin-right: 10px;
+        }
+        .check-button {
+          height: 30px;
+          margin-left: 10px;
+        }
+        .sign_up {
+          width: 200px;
+          height: 30px;
+          background: greenyellow;
+          border: 1px solid green;
+          border-radius: 5px;
+          transition: 0.25s;
+        }
+        .sign_up:active {
+          background: green;
+        }
+        div {
+          text-align: center;
+          margin-bottom: 15px;
+        }
+        h1 {
+          text-align: center;
+        }
+        .gender-container {
+          display: flex;
+          align-items: center;
+          justify-content: flex-start;
+          width: 340px;
+        }
+        .gender-label {
+          margin-right: 10px;
+        }
+        select[name="year"],
+        select[name="month"],
+        select[name="day"] {
+          width: 100px;
+        }
+    </style>
+    <script>
+document.addEventListener("DOMContentLoaded", function() {
+    // 필수 입력 필드 검증
+    const signUpButton = document.querySelector('.sign_up');
+    signUpButton.addEventListener('click', function(event) {
+        const requiredFields = document.querySelectorAll('.text');
+        let isEmpty = false;
+        requiredFields.forEach(function(field) {
+            if (!field.value.trim()) {
+                alert(field.name + '는 필수 입력입니다.');
+                isEmpty = true;
+                field.focus();
+                event.preventDefault(); // 폼 제출 방지
+                return;
+            }
+        });
+        if (isEmpty) {
+            return; // 필수 항목이 비어있으면 나머지 로직 실행하지 않음
+        }
+    });
+
+    // ID 중복 확인
+    document.querySelector('input[name="userIDcheck"]').addEventListener('click', function() {
+        const userID = document.querySelector('input[name="userID"]').value;
+        if (!userID) {
+            alert('아이디를 입력해주세요.');
+            return;
+        }
+        fetch(`/DayBridge/userID/${userID}/exists`)
+            .then(response => response.json())
+            .then(data => {
+                if (data) {
+                    alert('이미 존재하는 아이디입니다.');
+                } else {
+                    alert('사용 가능한 아이디입니다.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('중복 검사 중 오류가 발생했습니다.');
+            });
+    });
+
+    // 닉네임 중복 확인
+    document.querySelector('input[name="nickNamecheck"]').addEventListener('click', function() {
+        const nickName = document.querySelector('input[name="nickName"]').value;
+        if (!nickName) {
+            alert('닉네임을 입력해주세요.');
+            return;
+        }
+        fetch(`/DayBridge/nickName/${nickName}/exists`)
+            .then(response => response.json())
+            .then(data => {
+                if (data) {
+                    alert('이미 존재하는 닉네임입니다.');
+                } else {
+                    alert('사용 가능한 닉네임입니다.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('중복 검사 중 오류가 발생했습니다.');
+            });
+    });
+});
+</script>
+
+</head>
+<body>
+<br>
+<h1>회원가입</h1>
+<br><br><br>
+
+<section>
+    <form th:action="@{/DayBridge/signUp}" th:object="${joinRequest}" method="post">
+        <div class="container">
+            <div class="inner-container">
+                <b class="name">아이디</b>
+                <input class="text" type="text" th:field="*{userID}" name="userID" placeholder="아이디 입력">
+                <input class="check-button" type="button" name="userIDcheck" value="중복확인">
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="inner-container">
+                <b class="name">비밀번호</b>
+                <input class="text" type="password" th:field="*{userPW}" name="userPW" placeholder="비밀번호 입력">
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="inner-container">
+                <b class="name">비밀번호 확인</b>
+                <input class="text" type="password" th:field="*{pwCheck}"name="pwCheck" placeholder="비밀번호 입력">
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="inner-container">
+                <b class="name">이메일</b>
+                <input class="text" type="email" th:field="*{email}" name="userEmail" placeholder="Email 입력">
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="inner-container">
+                <b class="name">닉네임</b>
+                <input class="text" type="text" name="nickName" placeholder="닉네임 입력">
+                <input class="check-button" type="button" th:field="*{nickName}" name="nickNamecheck" value="중복확인">
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="inner-container">
+                <b class="name">이름</b>
+                <input class="text" type="text" th:field="*{name}" name="userName" placeholder="이름 입력">
+            </div>
+        </div>
+
+        <div>
+            <button class="sign_up" type="submit">회원가입</button>
+        </div>
+
+    </form>
+</section>
+</body>
+</html>

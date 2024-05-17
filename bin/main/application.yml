@@ -1,0 +1,27 @@
+spring:
+  datasource:
+    #    driver-class-name: com.mysql.cj.jdbc.Driver
+    #    url: jdbc:mysql://127.0.0.1:3306/daybridge
+    #    username: root
+    #    password: 1234
+    thymeleaf:
+      cache: false
+    url: jdbc:h2:tcp://localhost/~/daybridge
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        show_sql: true
+        format_sql: true
+
+
+logging_level:
+  org.hibernate.SQL: debug
+
+chatgpt:
+  api-key:
