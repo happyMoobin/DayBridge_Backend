@@ -35,7 +35,8 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(requests ->
                 requests.requestMatchers("/DayBridge/","/DayBridge/login","/DayBridge/signUp","/DayBridge/userID/{userID}/exists",
-                                "/DayBridge/nickName/{nickName}/exists","/DayBridge/form","/form","/DayBridge/result","/result", "/DayBridge/example", "/DayBridge/test"
+                                "/DayBridge/nickName/{nickName}/exists","/DayBridge/form","/form","/DayBridge/result","/result",
+                                "/DayBridge/example", "/example", "/DayBridge/furniture/**", "/furniture/**", "/DayBridge/furniture", "/furniture", "/DayBridge/gallery"
                         ).permitAll()
                 .anyRequest().authenticated()
                 );

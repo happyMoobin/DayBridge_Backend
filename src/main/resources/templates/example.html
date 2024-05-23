@@ -44,16 +44,41 @@
 </head>
 
 <body>
-<section>
-    <div class="image-square" id="imageContainer">
-        <img src="https://storage.cloud.google.com/daybridge_bucket_1/image/example3.jpg" alt="Example Image" />
-    </div><br>
-    <div class="furniture-square" id="furnitureContainer">
-        <div class="furniture-info">
-            <ul id="furnitureList"></ul>
+<div class="container">
+    <div class="header">
+        <h1><a href="/DayBridge/home">ROOMSTYLER</a></h1>
+        <div class="nav">
+            <ul>
+                <li><a href="/DayBridge/gallery" onclick="navigate(event)">My Gallery</a></li>
+                <li><a href="/DayBridge/login">Login</a></li>
+                <li><a href="/DayBridge/signUp">SignUp</a></li>
+            </ul>
         </div>
     </div>
-</section>
+    <div class="sector">
+        <div class="image-square" id="imageContainer">
+            <img th:src="@{https://storage.googleapis.com/daybridge_bucket_1/6941dce5-ddd2-4d3a-92b9-0dc6418e3f0a}" style="width: auto; max-height: 100%" />
+        </div>
+        <div class="furniture-square" id="furnitureContainer">
+            <div class="furniture-info">
+                <ul id="furnitureList">
+<!--                    <li th:each="product : ${similarProducts}">-->
+<!--                        <img th:src="@{${product.image}}" alt="Product Image">-->
+<!--                        <p>Product name: <span th:text="${product.product.name}"></span></p>-->
+<!--                        <p>Product display name: <span th:text="${product.product.displayName}"></span></p>-->
+<!--                        <p>Product description: <span th:text="${product.product.description}"></span></p>-->
+<!--                        <p>Score (Confidence): <span th:text="${product.score}"></span></p>-->
+<!--                        <p>Image name: <span th:text="${product.image}"></span></p>-->
+<!--                    </li>-->
+                </ul>
+            </div>
+        </div>
+    </div><br>
+</div>
+    <div class="button-container">
+        <button onclick="saveImage()">저장하기</button>
+        <button onclick="window.location.href = '/DayBridge/form'">다시 만들기</button>
+    </div>
 
 </body>
 </html>

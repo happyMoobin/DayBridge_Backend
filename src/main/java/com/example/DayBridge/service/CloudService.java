@@ -8,9 +8,9 @@ import com.google.cloud.vision.v1.*;
 import java.io.IOException;
 import com.google.cloud.storage.StorageOptions;
 import org.springframework.stereotype.Service;
-import org.springframework.ui.Model;
 
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -31,7 +31,7 @@ public class CloudService {
                 .build()
                 .getService();
 
-        BlobId blobId = BlobId.of(bucketName, "/image"+objectName);
+        BlobId blobId = BlobId.of(bucketName, objectName);
         BlobInfo blobInfo = BlobInfo.newBuilder(blobId).setContentType("image/png").build(); // png로 확장자 설정
 
         // 업로드
@@ -49,7 +49,7 @@ public class CloudService {
     }
 
     // 이미지 메모리에 다운로드
-    public static void downloadImage(String objectName) {
+    public static byte[] downloadImage(String objectName) {
         // The ID of your GCS object
         // String objectName = "your-object-name";
 
@@ -59,56 +59,8 @@ public class CloudService {
                 "The contents of "
                         + objectName
                         + " from bucket name "
-                        + bucketName
-                        + " are: "
-                        + new String(content, StandardCharsets.UTF_8));
-    }
-
-    // product set 나열
-    public static void listProductSets() throws IOException {
-        try (ProductSearchClient client = ProductSearchClient.create()) {
-            // A resource that represents Google Cloud Platform location.
-            String formattedParent = LocationName.format(projectId, computeRegion);
-            // List all the product sets available in the region.
-            for (ProductSet productSet : client.listProductSets(formattedParent).iterateAll()) {
-                // Display the product set information
-                System.out.println(String.format("Product set name: %s", productSet.getName()));
-                System.out.println(
-                        String.format(
-                                "Product set id: %s",
-                                productSet.getName().substring(productSet.getName().lastIndexOf('/') + 1)));
-                System.out.println(
-                        String.format("Product set display name: %s", productSet.getDisplayName()));
-                System.out.println("Product set index time:");
-                System.out.println(String.format("\tseconds: %s", productSet.getIndexTime().getSeconds()));
-                System.out.println(String.format("\tnanos: %s", productSet.getIndexTime().getNanos()));
-            }
-        }
-    }
-
-    // 제품 모두 가져오기
-        public static void listProductsInProductSet() throws IOException {
-        try (ProductSearchClient client = ProductSearchClient.create()) {
-
-            // Get the full path of the product set.
-            String formattedName = ProductSetName.format(projectId, computeRegion, productSetId);
-            // List all the products available in the product set.
-            for (Product product : client.listProductsInProductSet(formattedName).iterateAll()) {
-                // Display the product information
-                System.out.println(String.format("Product name: %s", product.getName()));
-                System.out.println(
-                        String.format(
-                                "Product id: %s",
-                                product.getName().substring(product.getName().lastIndexOf('/') + 1)));
-                System.out.println(String.format("Product display name: %s", product.getDisplayName()));
-                System.out.println(String.format("Product description: %s", product.getDescription()));
-                System.out.println(String.format("Product category: %s", product.getProductCategory()));
-                System.out.println("Product labels: ");
-                for (Product.KeyValue element : product.getProductLabelsList()) {
-                    System.out.println(String.format("%s: %s", element.getKey(), element.getValue()));
-                }
-            }
-        }
+                        + bucketName);
+        return content;
     }
 
 
@@ -142,7 +94,7 @@ public class CloudService {
             System.out.println("Processing done.");
             System.out.println("Results of the processing:");
 
-            for (int i = 0; i < results.getStatusesCount()-1; i++) {
+            for (int i = 0; i < results.getReferenceImagesCount(); i++) {
                 System.out.println(
                         String.format(
                                 "Status of processing line %s of the csv: %s", i, results.getStatuses(i)));
@@ -157,9 +109,8 @@ public class CloudService {
         }
     }
 
-
     // 제품 검색
-    public static void getSimilarProductsGcs(String objectName)
+    public static List<ProductSearchResults.Result> getSimilarProductsGcs(String objectName)
             throws Exception {
         try (ImageAnnotatorClient queryImageClient = ImageAnnotatorClient.create()) {
 
@@ -194,6 +145,7 @@ public class CloudService {
 
             List<ProductSearchResults.Result> similarProducts =
                     response.getResponses(0).getProductSearchResults().getResultsList();
+
             System.out.println("Similar Products: ");
             for (ProductSearchResults.Result product : similarProducts) {
                 System.out.println(String.format("\nProduct name: %s", product.getProduct().getName()));
@@ -203,40 +155,59 @@ public class CloudService {
                         String.format("Product description: %s", product.getProduct().getDescription()));
                 System.out.println(String.format("Score(Confidence): %s", product.getScore()));
                 System.out.println(String.format("Image name: %s", product.getImage()));
+
             }
 
-            //model.addAttribute("similarProducts", similarProducts);
+            return similarProducts;
         }
     }
 
-    /**
-     * List all images in a product.
-     *
-     * @param projectId - Id of the project.
-     * @param computeRegion - Region name.
-     * @param productId - Id of the product.
-     * @throws IOException - on I/O errors.
-     */
-    public static void listReferenceImagesOfProduct(
-            String projectId, String computeRegion, String productId) throws IOException {
+    public static List<String> getPublicImageUrlLists(List<ProductSearchResults.Result> similarProducts) throws IOException {
+        List<String> imageUrls = new ArrayList<>();
+        for (ProductSearchResults.Result product : similarProducts) {
+
+            // Extract the productId and referenceImageId from the product name
+            String productName = product.getProduct().getName();
+            String[] nameParts = productName.split("/");
+            String productId = nameParts[nameParts.length - 1];
+            String referenceImageId = product.getImage().split("/")[product.getImage().split("/").length - 1];
+
+            // 참조 이미지의 uri 가져옴
+            String gcsUri = getReferenceImage(productId, referenceImageId);
+            String publicUrl = getPublicImageUrl(gcsUri); // html에 불러올 수 있는 publicUrl로 변경
+            imageUrls.add(publicUrl); // 리스트에 publicUrl 추가
+        }
+        return imageUrls;
+    }
+
+    // 참조 이미지 가져와서 uri 반환
+    public static String getReferenceImage(String productId, String referenceImageId)
+            throws IOException {
         try (ProductSearchClient client = ProductSearchClient.create()) {
 
-            // Get the full path of the product.
-            String formattedParent = ProductName.format(projectId, computeRegion, productId);
-            for (ReferenceImage image : client.listReferenceImages(formattedParent).iterateAll()) {
-
-                // Display the reference image information.
-                System.out.println(String.format("Reference image name: %s", image.getName()));
-                System.out.println(
-                        String.format(
-                                "Reference image id: %s",
-                                image.getName().substring(image.getName().lastIndexOf('/') + 1)));
-                System.out.println(String.format("Reference image uri: %s", image.getUri()));
-                System.out.println(
-                        String.format(
-                                "Reference image bounding polygons: %s \n",
-                                image.getBoundingPolysList().toString()));
-            }
+            // Get the full path of the reference image.
+            String formattedName =
+                    ImageName.format(projectId, computeRegion, productId, referenceImageId);
+            // Get complete detail of the reference image.
+            ReferenceImage image = client.getReferenceImage(formattedName);
+            // Display the reference image information.
+//            System.out.println(String.format("Reference image name: %s", image.getName()));
+//            System.out.println(
+//                    String.format(
+//                            "Reference image id: %s",
+//                            image.getName().substring(image.getName().lastIndexOf('/') + 1)));
+//            System.out.println(String.format("Reference image uri: %s", image.getUri()));
+            return image.getUri();
         }
+    }
+
+    // gcs uri를 사용해 html에 사용할 수 있는 공개 url로 변환
+    public static String getPublicImageUrl(String gcsUri) {
+        // gs://daybridge_bucket_1/imageData/{fileName} 형태의 uri에서 fileName만 추출
+        int lastSlashIndex = gcsUri.lastIndexOf("/");
+        String fileName = (lastSlashIndex != -1) ?
+                gcsUri.substring(lastSlashIndex + 1) : gcsUri;
+
+        return "https://storage.googleapis.com/daybridge_bucket_1/imageData/" + fileName;
     }
 }

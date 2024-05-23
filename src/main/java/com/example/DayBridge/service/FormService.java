@@ -60,18 +60,11 @@ public class FormService {
         ImageIO.write(bi, "jpeg", outputStream);
         byte[] jpegImage = outputStream.toByteArray();
 
-        String objectName = UUID.randomUUID().toString(); // 저장될 파일 이름, 중복 없도록 uuid로 생성
-        // 생성된 이미지 google cloud에 이미지 업로드
-        CloudService.uploadImage(jpegImage, objectName);
-
-
-        CloudService.importProductSets();
-        CloudService.getSimilarProductsGcs("6941dce5-ddd2-4d3a-92b9-0dc6418e3f0a");
-        // vision api로 유사 제품 검색
-        //CloudService.getSimilarProductsGcs(objectName, model);
-
         return jpegImage;
     }
 
+    public List<FormData> getAllFormData() {
+        return formdataRepository.findAll();
+    }
 
 }

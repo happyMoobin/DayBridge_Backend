@@ -1,126 +1,220 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="ko">
 <head>
-    <meta charset="utf-8"/>
-    <title>Room Styler</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RoomStyler</title>
     <style>
+        @font-face{
+            font-family: abster;
+            src:url(../static/font/abster-webfont.woff) format('woff');
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         .container {
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          margin-bottom: 15px;
+            width: 100%;
+            height: 100vh;
+            background: linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.8)), url(/images/room.jpg);
         }
+
+        .container .header {
+            width: 80%;
+            height: 80px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .container .header h1 a {
+            text-decoration: none;
+            color: white;
+            font-family: abster;
+        }
+
+        .container .nav ul li {
+            display: inline-block;
+            margin: 0 10px;
+        }
+
+        .container .nav ul li a {
+            text-decoration: none;
+            color: white;
+        }
+
+        .container .nav ul li a:hover {
+            color: #1fdfdf;
+        }
+
+        .container .sector {
+            position: absolute;
+            left: 50%;
+            top: 52%;
+            transform: translate(-50%, -50%);
+            color: white;
+            text-align: center;
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
+        }
+
+        .container .sector h2 {
+            font-size: 50px;
+            margin-bottom: 20px;
+        }
+
+        .container .sector p {
+            font-size: 20px;
+            color: black;
+            margin-bottom: 10px;
+        }
+
+        .container .sector button {
+            background: darkseagreen;
+            border: 2px solid darkseagreen;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 20px;
+            margin-top: 0px;
+            outline: none;
+            cursor: pointer;
+            transition: all .4s;
+        }
+
+        .container .sector button:hover {
+            background-color: darkslategray;
+        }
+
+        form {
+            background-color: whitesmoke;
+            border: 5px solid darkseagreen;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            color: black;
+        }
+
         .inner-container {
-          display: flex;
-          flex-direction: column;
-          align-items: flex-start;
-          width: 450px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            width: 600px;
+            margin: 25px auto;
         }
+
         .text {
-          border: 1px solid black;
-          border-radius: 5px;
-          height: 40px;
-          width: 450px;
-          flex: 1;
-          padding: 5px;
+            border: 1px solid black;
+            border-radius: 5px;
+            height: 40px;
+            width: 450px;
+            flex: 1;
+            padding: 5px;
         }
+
         .name {
-          font-size: 100%;
-          width: 300px;
-          text-align: left;
-          margin-right: 10px;
-          margin-bottom: 5px;
+            font-size: 100%;
+            width: 300px;
+            text-align: left;
+            margin-right: 10px;
+            margin-bottom: 5px;
         }
-        .generate_image {
-          width: 200px;
-          height: 30px;
-          background: greenyellow;
-          border: 1px solid green;
-          border-radius: 5px;
-          transition: 0.25s;
-        }
-        .generate_image:active {
-          background: green;
-        }
-        div {
-          text-align: center;
-          margin-bottom: 15px;
-        }
-        h1 {
-          text-align: center;
-          font-size: 4em;
-        }
-        h2 {
-          text-align: center;
-          font-size: 1em;
+
+        .options label {
+            margin-right: 20px;
+            display: inline-block;
         }
     </style>
 </head>
 <body>
-<h1>RoomStyler</h1> <!--일단 디자인이 확정이 안 돼서 텍스트로 씀-->
-<h2>빈칸에 입력해 주신 정보를 토대로 가구 배치가 진행됩니다</h2>
-<br><br>
-
-<section>
-    <form name="requirementForm" action="/DayBridge/form" method="post">
-        <div class="container">
-            <div class="inner-container">
-                <!-- 사용자의 PK 번호를 숨겨진 필드로 추가 -->
-                <input type="hidden" id="userNo" name="userNo" th:value="${userNo}">
-            </div>
+<div class="container">
+    <div class="header">
+        <h1><a href="/DayBridge/">ROOMSTYLER</a></h1>
+        <div class="nav">
+            <ul>
+                <li><a href="/DayBridge/gallery" onclick="navigate(event)">My Gallery</a></li>
+                <li><a href="/DayBridge/login">Login</a></li>
+                <li><a href="/DayBridge/signUp">SignUp</a></li>
+            </ul>
         </div>
-        <div class="container">
+    </div>
+    <div class="sector">
+        <form name="requirementForm" action="/DayBridge/form" method="post">
             <div class="inner-container">
-                <b class="name">필수로 포함되어야 하는 가구</b>
-                <input class="text" type="text" id="essentialFurniture" name="essentialFurniture">
+                <b class="name">필수로 포함되어야 하는 가구</b><br>
+                <div class="options" id="essentialFurniture">
+                    <label><input type="checkbox" name="essentialFurniture" value="Desk"> 책상</label>
+                    <label><input type="checkbox" name="essentialFurniture" value="Chair"> 의자</label>
+                    <label><input type="checkbox" name="essentialFurniture" value="Sofa"> 소파</label>
+                    <label><input type="checkbox" name="essentialFurniture" value="Bed"> 침대</label>
+                    <label><input type="checkbox" name="essentialFurniture" value="Wardrobe"> 옷장</label>
+                </div>
             </div>
-        </div>
 
-        <div class="container">
             <div class="inner-container">
-                <b class="name">창문 위치(예시 : 왼쪽, 오른쪽, 정면)</b>
-                <input class="text" type="text" id="windowPosition" name="windowPosition">
+                <b class="name">창문 위치</b><br>
+                <div class="options" id="windowPosition">
+                    <label><input type="checkbox" name="windowPosition" value="Front"> 정면</label>
+                    <label><input type="checkbox" name="windowPosition" value="Right"> 오른쪽</label>
+                    <label><input type="checkbox" name="windowPosition" value="Left"> 왼쪽</label>
+                </div>
             </div>
-        </div>
 
-        <div class="container">
             <div class="inner-container">
-                <b class="name">창문 개수</b>
-                <input class="text" type="text" id="windowNum" name="windowNum">
+                <b class="name">창문 개수</b><br>
+                <select name="windowNum" class="text" id="windowNum">
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                </select>
             </div>
-        </div>
 
-        <div class="container">
             <div class="inner-container">
-                <b class="name">원하는 인테리어 톤/포인트 색상</b>
-                <input class="text" type="text" id="pointColor" name="pointColor">
+                <b class="name">원하는 인테리어 톤/포인트 색상</b><br>
+                <div class="options" id="pointColor">
+                    <label><input type="checkbox" name="pointColor" value="white"> 화이트</label>
+                    <label><input type="checkbox" name="pointColor" value="black"> 블랙</label>
+                    <label><input type="checkbox" name="pointColor" value="green"> 그린</label>
+                    <label><input type="checkbox" name="pointColor" value="blue"> 블루</label>
+                    <label><input type="checkbox" name="pointColor" value="yellow"> 옐로우</label>
+                    <label><input type="checkbox" name="pointColor" value="purple"> 퍼플</label>
+                    <label><input type="checkbox" name="pointColor" value="wood"> 우드</label>
+                </div>
             </div>
-        </div>
 
-        <div class="container">
             <div class="inner-container">
-                <b class="name">방 크기 (평방미터 단위)</b>
-                <input class="text" type="text" id="roomSize" name="roomSize">
+                <b class="name">방 크기 (평방미터)</b><br>
+                <select name="roomSize" class="text" id="roomSize">
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                    <option value="7">7</option>
+                    <option value="8">8</option>
+                    <option value="9">9</option>
+                    <option value="10">10</option>
+                </select>
             </div>
-        </div>
 
-<!--        <div class="container">-->
-<!--            <div class="inner-container">-->
-<!--                <b class="name">기타 고려 사항</b>-->
-<!--                <input class="text" type="text" id="consideration" name="consideration">-->
-<!--            </div>-->
-<!--        </div>-->
-        <div>
             <button class="generate_image" type="submit">이미지 생성</button>
-        </div>
-
-    </form>
-</section>
+        </form>
+    </div>
+</div>
 <script>
+    function myGallery() {
+        // 로그인 상태 확인 (임시로 true로 설정)
+        let isLoggedIn = true; // (임시)로그인 상태를 확인하는 로직 필요
 
+        if (isLoggedIn) {
+            window.location.href = "/DayBridge/gallery";
+        } else {
+            window.location.href = "/DayBridge/login";
+        }
+    }
 </script>
-
-
-
 </body>
 </html>

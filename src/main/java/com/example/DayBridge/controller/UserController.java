@@ -1,10 +1,15 @@
 package com.example.DayBridge.controller;
 
+import com.example.DayBridge.domain.FormData;
 import com.example.DayBridge.domain.JoinRequest;
 import com.example.DayBridge.domain.LoginRequest;
 import com.example.DayBridge.domain.Users;
+import com.example.DayBridge.repository.FormDataRepository;
 import com.example.DayBridge.service.CloudService;
+import com.example.DayBridge.service.FormService;
 import com.example.DayBridge.service.UserService;
+
+import com.google.cloud.vision.v1.ProductSearchResults;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +20,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
+import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
@@ -24,18 +30,10 @@ public class UserController {
     @Autowired
     private final UserService userService;
 
-    @GetMapping("/test")
-    public String showSimilarProducts() {
-        try {
-            CloudService.importProductSets();
-            //CloudService.listProductSets();
-            //CloudService.listProductsInProductSet();
-            CloudService.getSimilarProductsGcs("3cdb62ef-c725-4a31-87e4-cad188efe116");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return "test"; // HTML 파일 이름 (test.html)
-    }
+    @Autowired
+    private final FormService formService;
+
+    private final FormDataRepository formDataRepository;
 
     @GetMapping("/")
     public String home(Model model, Authentication auth) {
@@ -109,4 +107,12 @@ public class UserController {
             return ResponseEntity.ok().body("로그인 성공");
         }
     }
+
+    @GetMapping("/gallery")
+    public String goToGallery(Model model) {
+        List<FormData> formDataList = formService.getAllFormData();
+        model.addAttribute("formDataList", formDataList);
+        return "gallery";
+    }
+
 }
